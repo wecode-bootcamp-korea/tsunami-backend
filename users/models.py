@@ -7,7 +7,7 @@ class User(models.Model):
     password       = models.CharField(max_length=100)
     email          = models.EmailField(max_length=60, unique=True)
     phone_number   = models.CharField(max_length=11)
-    birthday       = models.CharField(max_length=12, null=True) # form : '19xx, 08, 15'
+    birthday       = models.CharField(max_length=8, null=True) # form : '19xx0x0x'
     sms_agree      = models.BooleanField()
     email_agree    = models.BooleanField()
     created_at     = models.DateTimeField(auto_now_add=True)
