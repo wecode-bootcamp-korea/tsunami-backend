@@ -6,7 +6,7 @@ class User(models.Model):
     username       = models.CharField(max_length=20, unique=True)
     password       = models.CharField(max_length=100)
     email          = models.EmailField(max_length=60, unique=True)
-    phone_number   = models.CharField(max_length=11, unique=True)
+    phone_number   = models.CharField(max_length=11)
     birthday       = models.CharField(max_length=12, null=True) # form : '19xx, 08, 15'
     sms_agree      = models.BooleanField()
     email_agree    = models.BooleanField()
