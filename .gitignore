@@ -14,6 +14,9 @@ media
 *.csv
 my_settings.py
 
+### CSV Loader ###
+User_CSV.py
+Product_CSV.py
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
@@ -236,6 +239,7 @@ tags
 [._]*.un~
 
 ### vscode ###
+.vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
