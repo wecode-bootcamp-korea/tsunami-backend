@@ -22,7 +22,7 @@ class Product(models.Model):
     shipping_info  = models.ForeignKey('ShippingInfo', null=True, on_delete=models.SET_NULL)
     maker          = models.ForeignKey('Maker', null=True, on_delete=models.SET_NULL)
     description    = models.CharField(max_length=100, null=True)
-    main_image_url = models.CharField(max_length=2000)
+    main_image_url = models.URLField(max_length=2000)
     created_at     = models.DateTimeField(auto_now_add=True)
     updated_at     = models.DateTimeField(auto_now=True)
 
