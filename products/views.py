@@ -6,8 +6,8 @@ from django.http  import JsonResponse
 from .models      import Product, Category, Subcategory
 
 class ProductListView(View):
-    def get(self, request):
-        
+
+    def get(self, request):    
         try:
             query_strings = request.GET
             if not query_strings:
@@ -40,15 +40,25 @@ class ProductListView(View):
                 req_list.append(req_dict)
             return JsonResponse({'PRODUCT':req_list}, status=200)
         except KeyError:
-            return JsonResponse({'MESSAGE :':"KEY_ERROR"},status=400)
+            return JsonResponse({'MESSAGE':"KEY_ERROR"} ,status=400)
+        except ValueError:
+            return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
+        except UnboundLocalError:
+            return JsonResponse({'MESSAGE':"UNBOUND_LOCAL_ERROR"} ,status=400)
+        except Category.DoesNotExist:
+            return JsonResponse({'MESSAGE':"CATEGORY_DOSENT_EXIST"} ,status=400)
+        except Subcategory.DoesNotExist:
+            return JsonResponse({'MESSAGE':"SUBCATEGORY_DOSENT_EXIST"} ,status=400)
+        except Product.DoesNotExist:
+            return JsonResponse({'MESSAGE':"PRODUCT_DOSENT_EXIST"} ,status=400)
 
 class ProductDetailView(View):
     def get(self, request):
 
         try:
             product_id = request.GET.get("product_id")
-            product = Product.objects.get(id=product_id)
-            req_list = []
+            product    = Product.objects.get(id=product_id)
+            req_list   = []
 
             req_dict = {
                 'id'            : product.id,
@@ -64,7 +74,9 @@ class ProductDetailView(View):
             req_list.append(req_dict)
             return JsonResponse({'PRODUCT':req_list}, status=200)
         except KeyError:
-            return JsonResponse({'MESSAGE :':"KEY_ERROR"},status=400)
+            return JsonResponse({'MESSAGE':"KEY_ERROR"},status=400)
+        except ValueError:
+            return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
         except Product.DoesNotExist:
-            return JsonResponse({'MESSAGE :':"INVAILD_PRODUCT"},status=400)
+            return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
         
