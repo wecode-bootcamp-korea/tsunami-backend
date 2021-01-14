@@ -92,3 +92,40 @@ class CheckEmailDuplicationView(View):
             return JsonResponse({'DUPLICATION': True}, status=409)
 
         return JsonResponse({'DUPLICATION': False}, status=200)
+
+class SignInView(View):
+
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            username = data['username']
+            password = data['password']
+            
+            if not utils.validate_username(username):
+                return JsonResponse({'MESSAGE': 'INVALID_USERNAME'}, status=400)
+
+            if not utils.validate_password(password, username):
+                return JsonResponse({'MESSAGE': 'INVALID_PASSWORD'}, status=400)
+            
+            if not User.objects.filter(username=username).exists():
+                return JsonResponse({'MESSAGE': 'WRONG_USERNAME'})
+            
+            accessing_user = User.objects.get(username=username)
+            
+            if not utils.check_password(password, accessing_user.password):
+                return JsonResponse({'MESSAGE': 'WRONG_PASSWORD'})
+            
+            access_token = utils.generate_access_token(accessing_user.id)   
+            return JsonResponse(
+                {
+                    'MESSAGE': "SIGNED_IN",
+                    'TOKEN'  : access_token
+                }, 
+                status=200
+            )
+        except json.decoder.JSONDecodeError:
+            return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
+        except KeyError:
+            return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+        except TypeError:
+            return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
