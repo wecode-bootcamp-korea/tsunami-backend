@@ -1,27 +1,29 @@
-from django.shortcuts import render
-
 from django.views import View
 from django.http  import JsonResponse
 
 from .models      import Product, Category, Subcategory
+from .utils       import validate_value
 
 class ProductListView(View):
 
     def get(self, request):    
         try:
             query_strings = request.GET
-            if not query_strings:
-                products = Product.objects.all()
+            limit         = validate_value(request.GET.get('limit',10))
+            offset        = validate_value(request.GET.get('offset',0)) 
+
+            if not 'category' in query_strings or 'subcategory' in query_strings :
+                products = Product.objects.all()[offset:limit]
             
             if 'category' in query_strings:
                 category      = Category.objects.get(id=query_strings['category'])
-                subcategories = category.subcategory_set.all()
+                subcategories = category.subcategory_set.all()[offset:limit]
                 products      = [ product for subcategory in subcategories \
                      for product in subcategory.product_set.all() ]
 
             if 'subcategory' in query_strings:
                 subcategory = Subcategory.objects.get(id=query_strings['subcategory'])
-                products    = subcategory.product_set.all()
+                products    = subcategory.product_set.all()[offset:limit]
 
             req_list = [ {
                 'id'        : product.id,
@@ -34,8 +36,6 @@ class ProductListView(View):
             return JsonResponse({'PRODUCT':req_list}, status=200)
         except ValueError:
             return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
-        except UnboundLocalError:
-            return JsonResponse({'MESSAGE':"UNBOUND_LOCAL_ERROR"} ,status=400)
         except Category.DoesNotExist:
             return JsonResponse({'MESSAGE':"CATEGORY_DOSENT_EXIST"} ,status=400)
         except Subcategory.DoesNotExist:
