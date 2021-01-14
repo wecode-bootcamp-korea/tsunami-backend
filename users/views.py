@@ -12,7 +12,6 @@ class SignUpView(View):
     def post(self, request):
         try:
             data            = json.loads(request.body)
-            print(data)
             name            = data["name"]
             username        = data["username"]
             password        = data["password"]
@@ -97,7 +96,7 @@ class SignInView(View):
 
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data     = json.loads(request.body)
             username = data['username']
             password = data['password']
             

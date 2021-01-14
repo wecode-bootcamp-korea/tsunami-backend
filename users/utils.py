@@ -19,7 +19,7 @@ def validate_username(username):
 def validate_password(password, username):
     minimum_length = 6
     maximum_length = 16
-    mixed_checker = 0
+    mixed_checker  = 0
 
     if re.findall(r'[!@#$%^?_~]',password):
         mixed_checker += 1
