@@ -42,24 +42,22 @@ class ProductListView(View):
             return JsonResponse({'MESSAGE':"SUBCATEGORY_DOSENT_EXIST"} ,status=400)
 
 class ProductDetailView(View):
-    def get(self, request, product_id):
 
+    def get(self, request, product_id):
         try:
             product    = Product.objects.get(id=product_id)
-            req_list   = [
-                {
-                    'id'            : product.id,
-                    'image_url'     : product.main_image_url,
-                    'name'          : product.name,
-                    'price'         : int(product.price),
-                    'maker'         : product.maker.name,
-                    'feature'       : product.feature,
-                    'origin'        : product.shipping_info.origin,
-                    'shipping_info' : product.shipping_info.shipping_info,
-                    'shipping_fee'  : int(product.shipping_info.shipping_fee)
-                }
-            ]
-            return JsonResponse({'PRODUCT':req_list}, status=200)
+            req_dict   = {
+                'id'            : product.id,
+                'image_url'     : product.main_image_url,
+                'name'          : product.name,
+                'price'         : int(product.price),
+                'maker'         : product.maker.name,
+                'feature'       : product.feature,
+                'origin'        : product.shipping_info.origin,
+                'shipping_info' : product.shipping_info.shipping_info,
+                'shipping_fee'  : int(product.shipping_info.shipping_fee)
+            }
+            return JsonResponse({'PRODUCT':req_dict}, status=200)
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
         
