@@ -1,41 +1,25 @@
 import re
-
 import bcrypt
 import jwt
 
-from django.http   import JsonResponse
+from django.http  import JsonResponse
 
 from users.models import User
 import my_settings
 
 def check_duplication(field_pair):
-    if User.objects.filter(**field_pair).exists():
-        return True
-
-    return False
+    return User.objects.filter(**field_pair).exists()
 
 def validate_username(username):
-    if len(re.findall(r'[a-zA-Z0-9]',username)) != len(username):
-        return False
-
-    if not(5 <= len(username) <= 16):
-        return False
-    
-    return True
+    return (
+        (len(re.findall(r'[a-zA-Z0-9]',username)) == len(username)) and 
+        (5 <= len(username) <= 16)
+    )
 
 def validate_password(password, username):
     minimum_length = 6
     maximum_length = 16
     mixed_checker = 0
-
-    if password == username:
-        return False
-    
-    if not(minimum_length <= len(password) <= maximum_length):
-        return False
-    
-    if len(re.findall(r'[!@#$%^?_~a-zA-Z0-9]',password)) != len(password):
-        return False
 
     if re.findall(r'[!@#$%^?_~]',password):
         mixed_checker += 1
@@ -46,46 +30,40 @@ def validate_password(password, username):
     if re.findall(r'[0-9]', password):
         mixed_checker += 1
 
-    if not(mixed_checker >= 2):
-        return False
-    
-    return True
+    mixed              = (mixed_checker >= 2)
+    is_not_same        = (password != username) 
+    valid_length       = (minimum_length <= len(password) <= maximum_length) 
+    allowed_characters = (
+        len(re.findall(r'[!@#$%^?_~a-zA-Z0-9]',password)) == 
+        len(password)
+    )
+    return (mixed and is_not_same and valid_length and allowed_characters)
 
 def validate_email(email):
-    if not re.findall(r"^.+@[0-9a-zA-Z_-]+\..+$", email):
-        return False 
-    
-    return True
+    return re.findall(r"^.+@[0-9a-zA-Z_-]+\..+$", email)
 
 def validate_phone_number(phone_number):
-    if not re.match(r'[0-9]+', phone_number).group() == phone_number:
-        return False 
-    
-    if not len(re.findall(r'[0-9]', phone_number)) == 11:
-        return False
-
-    return True
+    correct_length = 11
+    return (
+        (re.match(r'[0-9]+', phone_number).group() == phone_number) and
+        (len(re.findall(r'[0-9]', phone_number)) == correct_length)
+    )
 
 def validate_date(date_str):
-    if not re.match(r'[0-9]+', date_str).group() == date_str:
-        return False 
-    
-    if not len(re.findall(r'[0-9]', date_str)) == 8:
-        return False
-    
-    return True
+    correct_length = 8
+    return (
+        (re.match(r'[0-9]+', date_str).group() == date_str) and
+        (len(re.findall(r'[0-9]', date_str)) == correct_length)
+    )
 
 def validate_boolean(true_or_false):
-    if type(true_or_false) != type(True):
-        return False
-
-    return True
+    return type(true_or_false) == type(True)
 
 def hash_password(str_password):
     hashed_password = bcrypt.hashpw(
-            str_password.encode('utf-8'), 
-            bcrypt.gensalt()
-            )
+        str_password.encode('utf-8'), 
+        bcrypt.gensalt()
+    )
     return hashed_password.decode('utf-8')
 
 def check_password(password, hashed_password):
@@ -93,23 +71,38 @@ def check_password(password, hashed_password):
     hashed_password = hashed_password.encode('utf-8')
     return bcrypt.checkpw(password, hashed_password)
 
+def generate_access_token(user_id):
+    payload = {
+        'user_id' : user_id
+    }
+    access_token = jwt.encode(
+        payload, 
+        my_settings.SECRET_KEY, 
+        algorithm = my_settings.ALGORITHM
+    )
+    return access_token
+
 def login_required(function):
     
     def wrapper(view_self, request, *args, **kwargs):
         try:
-            access_token = request.headers["Authorization"]
+            access_token = request.headers.get("Authorization")
+
+            if not access_token:
+                return JsonResponse({'MESSAGE': 'LOGIN_REQUIRED'}, status=401)
+            
             header = jwt.decode(
-                    access_token,
-                    my_settings.SECRET,
-                    algorithms = my_settings.ALGORITHM
-                    )
+                access_token, 
+                my_settings.SECRET_KEY, 
+                algorithms = my_settings.ALGORITHM
+            )
+
             if not User.objects.filter(id = header['user_id']).exists():
                 return JsonResponse({'MESSAGE': 'INVALID_USER'}, status=400)
             
             setattr(request, "user", User.objects.get(id = header['user_id']))
-
             return function(view_self, request, *args, **kwargs)
-        except:
-            return JsonResponse({'MESSAGE': 'LOGIN_REQUIRED'}, status=401)
+        except jwt.exceptions.DecodeError:
+            return JsonResponse({'MESSAGE': 'JWT_DECODE_ERROR'}, status=400)
 
     return wrapper
