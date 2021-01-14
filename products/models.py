@@ -43,3 +43,72 @@ class Maker(models.Model):
 
     class Meta:
         db_table = 'makers'
+
+class Color(models.Model):
+    name      = models.CharField(max_length=45)
+    image_url = models.URLField(max_length=2000)
+
+    class Meta:
+        db_table = 'colors'
+
+class ProductInkColor(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    color   = models.ForeignKey('Color', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'product_ink_colors'
+
+class ProductBodyColor(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    color   = models.ForeignKey('Color', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'product_body_colors'
+
+class Keyword(models.Model):
+    keyword =  models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'keywords'
+
+class ProductKeyword(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    keyword = models.ForeignKey('Keyword', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'product_keywords'
+
+class Thickness(models.Model):
+    thickness = models.DecimalField(max_digits=2, decimal_places=1)
+    image_url = models.URLField(max_length=2000)
+
+    class Meta:
+        db_table = 'thickness'
+
+class ProductThickness(models.Model):
+    product   = models.ForeignKey('Product', on_delete=models.CASCADE)
+    thickness = models.ForeignKey('Thickness', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'product_thickness'
+
+class ProductThumbnail(models.Model):
+    product   = models.ForeignKey('Product', on_delete=models.CASCADE)
+    image_url = models.URLField(max_length=2000)
+
+    class Meta:
+        db_table = 'product_thumbnails'
+
+class ProductDetailImage(models.Model):
+    product   = models.ForeignKey('Product', on_delete=models.CASCADE)
+    image_url = models.URLField(max_length=2000)
+
+    class Meta:
+        db_table = 'product_detail_images'
+
+class ProductOption(models.Model):
+    product   = models.ForeignKey('Product', on_delete=models.CASCADE)
+    stock     = models.IntegerField()
+    
+    class Meta:
+        db_table = 'product_options'
