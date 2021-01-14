@@ -9,8 +9,8 @@ class ProductListView(View):
     def get(self, request):    
         try:
             query_strings = request.GET
-            limit         = validate_value(request.GET.get('limit',10))
-            offset        = validate_value(request.GET.get('offset',0)) 
+            limit         = validate_value(int(request.GET.get('limit',10)))
+            offset        = validate_value(int(request.GET.get('offset',0))) 
 
             if not 'category' in query_strings or 'subcategory' in query_strings :
                 products = Product.objects.all()[offset:limit]
