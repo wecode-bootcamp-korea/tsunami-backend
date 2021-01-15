@@ -1,5 +1,4 @@
 import re
-import bcrypt
 import jwt
 
 from django.http  import JsonResponse
@@ -58,18 +57,6 @@ def validate_date(date_str):
 
 def validate_boolean(true_or_false):
     return type(true_or_false) == type(True)
-
-def hash_password(str_password):
-    hashed_password = bcrypt.hashpw(
-        str_password.encode('utf-8'), 
-        bcrypt.gensalt()
-    )
-    return hashed_password.decode('utf-8')
-
-def check_password(password, hashed_password):
-    password        = password.encode('utf-8')
-    hashed_password = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(password, hashed_password)
 
 def generate_access_token(user_id):
     payload = {

@@ -1,4 +1,5 @@
 import json
+import bcrypt
 from datetime import datetime
 
 from django.http   import JsonResponse
@@ -46,7 +47,13 @@ class SignUpView(View):
                     return JsonResponse({'MESSAGE': 'INVALID_DATEFORM'}, status=400)
 
                 birthday = datetime.strptime(birthday, '%Y%m%d').date()
-                password = utils.hash_password(password)
+            
+            # password hashing
+            password = bcrypt.hashpw(
+                password.encode('utf-8'), 
+                bcrypt.gensalt()
+            )
+            password = password.decode("utf-8")
 
             created_user = User.objects.create(
                 name            = name,
@@ -109,9 +116,11 @@ class SignInView(View):
             if not User.objects.filter(username=username).exists():
                 return JsonResponse({'MESSAGE': 'WRONG_USERNAME'})
             
-            accessing_user = User.objects.get(username=username)
-            
-            if not utils.check_password(password, accessing_user.password):
+            accessing_user  = User.objects.get(username=username)
+            password        = password.encode('utf-8')
+            hashed_password = accessing_user.password.encode('utf-8')
+
+            if not bcrypt.checkpw(password, hashed_password):
                 return JsonResponse({'MESSAGE': 'WRONG_PASSWORD'})
             
             access_token = utils.generate_access_token(accessing_user.id)   
