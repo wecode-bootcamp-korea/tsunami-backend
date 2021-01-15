@@ -1,7 +1,7 @@
 from .models import Product
 
 def validate_value(input_int):
-    max_length = Product.objects.all().count()
+    max_length = Product.objects.count()
 
     if input_int > max_length:
         return max_length

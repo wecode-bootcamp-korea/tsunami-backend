@@ -17,9 +17,9 @@ class ProductListView(View):
             
             if 'category' in query_strings:
                 category      = Category.objects.get(id=query_strings['category'])
-                subcategories = category.subcategory_set.all()[offset:limit]
+                subcategories = category.subcategory_set.all()
                 products      = [ product for subcategory in subcategories \
-                     for product in subcategory.product_set.all() ]
+                     for product in subcategory.product_set.all() ][offset:limit]
 
             if 'subcategory' in query_strings:
                 subcategory = Subcategory.objects.get(id=query_strings['subcategory'])
