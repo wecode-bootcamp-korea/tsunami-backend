@@ -9,12 +9,12 @@ class ProductListView(View):
     def get(self, request):    
         try:
             query_strings = request.GET
-            limit         = validate_value(int(request.GET.get('limit',10)))
+            limit         = validate_value(int(request.GET.get('limit',100)))
             offset        = validate_value(int(request.GET.get('offset',0))) 
 
-            if not 'category' in query_strings or 'subcategory' in query_strings :
+            if not any(query in query_strings for query in ['subcategory','category']):
                 products = Product.objects.all()[offset:limit]
-            
+
             if 'category' in query_strings:
                 category      = Category.objects.get(id=query_strings['category'])
                 subcategories = category.subcategory_set.all()
