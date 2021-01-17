@@ -114,14 +114,14 @@ class SignInView(View):
                 return JsonResponse({'MESSAGE': 'INVALID_PASSWORD'}, status=400)
             
             if not User.objects.filter(username=username).exists():
-                return JsonResponse({'MESSAGE': 'WRONG_USERNAME'})
+                return JsonResponse({'MESSAGE': 'WRONG_USERNAME'}, status=400)
             
             accessing_user  = User.objects.get(username=username)
             password        = password.encode('utf-8')
             hashed_password = accessing_user.password.encode('utf-8')
 
             if not bcrypt.checkpw(password, hashed_password):
-                return JsonResponse({'MESSAGE': 'WRONG_PASSWORD'})
+                return JsonResponse({'MESSAGE': 'WRONG_PASSWORD'}, status=400)
             
             access_token = utils.generate_access_token(accessing_user.id)   
             return JsonResponse(
