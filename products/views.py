@@ -44,8 +44,8 @@ class ProductListView(View):
             return JsonResponse({'MESSAGE':"PRODUCT_DOSENT_EXIST"} ,status=400)
 
 class ProductDetailView(View):
-    def get(self, request, product_id):
 
+    def get(self, request, product_id):
         try:
             product     = Product.objects.get(id=product_id)
             body_colors = product.productbodycolor_set.all()
@@ -69,11 +69,10 @@ class ProductDetailView(View):
                 'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
                 'options'       : [ option.name for option in  product.productoption_set.all() ],
             }
-            return JsonResponse({'PRODUCT':req_dict}, status=200)
+            return JsonResponse({'product':req_dict}, status=200)
         except KeyError:
             return JsonResponse({'MESSAGE':"KEY_ERROR"},status=400)
         except ValueError:
             return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
-        
