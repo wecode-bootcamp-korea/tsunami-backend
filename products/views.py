@@ -33,7 +33,7 @@ class ProductListView(View):
                 'maker'     : product.maker.name
              } for product in products ]
 
-            return JsonResponse({'PRODUCT':req_list}, status=200)
+            return JsonResponse({'product':req_list}, status=200)
         except ValueError:
             return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
         except Category.DoesNotExist:
@@ -57,7 +57,7 @@ class ProductDetailView(View):
                 'shipping_info' : product.shipping_info.shipping_info,
                 'shipping_fee'  : int(product.shipping_info.shipping_fee)
             }
-            return JsonResponse({'PRODUCT':req_dict}, status=200)
+            return JsonResponse({'product':req_dict}, status=200)
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
         
