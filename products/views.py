@@ -1,7 +1,7 @@
 from django.views import View
 from django.http  import JsonResponse
 
-from .models      import Product, Category, Subcategory
+from .models      import Product, Category, Subcategory, ProductKeyword
 from .utils       import validate_value
 
 class ProductListView(View):
@@ -19,7 +19,7 @@ class ProductListView(View):
                 category      = Category.objects.get(id=query_strings['category'])
                 subcategories = category.subcategory_set.all()
                 products      = [ product for subcategory in subcategories \
-                     for product in subcategory.product_set.all() ][offset:limit]
+                    for product in subcategory.product_set.all() ][offset:limit]
 
             if 'subcategory' in query_strings:
                 subcategory = Subcategory.objects.get(id=query_strings['subcategory'])
@@ -40,13 +40,19 @@ class ProductListView(View):
             return JsonResponse({'MESSAGE':"CATEGORY_DOSENT_EXIST"} ,status=400)
         except Subcategory.DoesNotExist:
             return JsonResponse({'MESSAGE':"SUBCATEGORY_DOSENT_EXIST"} ,status=400)
+        except Product.DoesNotExist:
+            return JsonResponse({'MESSAGE':"PRODUCT_DOSENT_EXIST"} ,status=400)
 
 class ProductDetailView(View):
-
     def get(self, request, product_id):
+
         try:
-            product    = Product.objects.get(id=product_id)
-            req_dict   = {
+            product     = Product.objects.get(id=product_id)
+            body_colors = product.productbodycolor_set.all()
+            ink_colors  = product.productinkcolor_set.all()
+            nibs        = product.productthickness_set.all()
+
+            req_dict = {
                 'id'            : product.id,
                 'image_url'     : product.main_image_url,
                 'name'          : product.name,
@@ -54,10 +60,20 @@ class ProductDetailView(View):
                 'maker'         : product.maker.name,
                 'feature'       : product.feature,
                 'origin'        : product.shipping_info.origin,
-                'shipping_info' : product.shipping_info.shipping_info,
-                'shipping_fee'  : int(product.shipping_info.shipping_fee)
+                'body_colors'   : [ { body_color.color.name : body_color.color.image_url } for body_color in body_colors ]\
+                                    if body_colors.exists() else None,
+                'ink_colors'    : [ { ink_color.color.name : ink_color.color.image_url } for ink_color in ink_colors ]\
+                                    if ink_colors.exists() else None,
+                'thicknesses'   : [ { str(nib.thickness.thickness) : nib.thickness.image_url }  for nib in nibs ]\
+                                    if nibs.exists() else  None,
+                'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
+                'options'       : [ option.name for option in  product.productoption_set.all() ],
             }
-            return JsonResponse({'product':req_dict}, status=200)
+            return JsonResponse({'PRODUCT':req_dict}, status=200)
+        except KeyError:
+            return JsonResponse({'MESSAGE':"KEY_ERROR"},status=400)
+        except ValueError:
+            return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
         
