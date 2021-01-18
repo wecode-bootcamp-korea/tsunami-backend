@@ -15,16 +15,17 @@ class Subcategory(models.Model):
         db_table = 'subcategories'
 
 class Product(models.Model):
-    name           = models.CharField(max_length=45)
-    subcategory    = models.ForeignKey('Subcategory', on_delete=models.CASCADE)
-    feature        = models.TextField(null=True)
-    price          = models.DecimalField(max_digits=8, decimal_places=2)
-    shipping_info  = models.ForeignKey('ShippingInfo', null=True, on_delete=models.SET_NULL)
-    maker          = models.ForeignKey('Maker', null=True, on_delete=models.SET_NULL)
-    description    = models.CharField(max_length=100, null=True)
-    main_image_url = models.URLField(max_length=2000)
-    created_at     = models.DateTimeField(auto_now_add=True)
-    updated_at     = models.DateTimeField(auto_now=True)
+    name            = models.CharField(max_length=45)
+    subcategory     = models.ForeignKey('Subcategory', on_delete=models.CASCADE)
+    feature         = models.TextField(null=True)
+    price           = models.DecimalField(max_digits=8, decimal_places=2)
+    shipping_info   = models.ForeignKey('ShippingInfo', null=True, on_delete=models.SET_NULL)
+    maker           = models.ForeignKey('Maker', null=True, on_delete=models.SET_NULL)
+    description     = models.CharField(max_length=100, null=True)
+    main_image_url  = models.URLField(max_length=2000)
+    product_keyword = models.ManyToManyField('Keyword', related_name='product_keyword', through='ProductKeyword')
+    created_at      = models.DateTimeField(auto_now_add=True)
+    updated_at      = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'products'
@@ -108,6 +109,7 @@ class ProductDetailImage(models.Model):
 
 class ProductOption(models.Model):
     product   = models.ForeignKey('Product', on_delete=models.CASCADE)
+    name      = models.CharField(max_length=45)
     stock     = models.IntegerField()
     
     class Meta:
