@@ -142,6 +142,7 @@ class SignInView(View):
             return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
 
 class FindUsernameView(View):
+
     def post(self, request):
         try:
             data  = json.loads(request.body)
@@ -151,17 +152,18 @@ class FindUsernameView(View):
             if not utils.validate_email(email):
                 return JsonResponse({'MESSAGE': 'INVALID_EMAIL'}, status=400)
             
-            forgotten_users = User.objects.filter(name=name, email=email)
+            forgotten_user = User.objects.filter(name=name, email=email)
             
-            if not forgotten_users.exists():
+            if not forgotten_user.exists():
                 return JsonResponse({'MESSAGE': 'WRONG_USER'}, status=400)
 
-            forgotten_user = forgotten_users[0]
+            forgotten_user = forgotten_user[0]
             return JsonResponse({
                 "USERNAME"  : forgotten_user.username[:-3]+ "*" * 3,
                 "CREATED_AT": forgotten_user.created_at
             }, status=200)
-
+        except json.decoder.JSONDecodeError:
+            return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
         except KeyError:
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
         except TypeError:
@@ -191,18 +193,17 @@ class MakeTemporaryPasswordView(View):
             if not forgotten_user.exists():
                 return JsonResponse({'MESSAGE': 'WRONG_USER'}, status=400)
 
-            forgotten_user  = forgotten_user[0]
-            random_password = token_urlsafe()[:16]
-
+            forgotten_user          = forgotten_user[0]
+            random_password         = token_urlsafe()[:16]
             forgotten_user.password = bcrypt.hashpw(
                 random_password.encode('utf-8'), 
                 bcrypt.gensalt()
             ).decode("utf-8")
             forgotten_user.save()
-
             return JsonResponse({'PASSWORD': random_password}, status=201)
+        except json.decoder.JSONDecodeError:
+            return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
         except KeyError:
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
         except TypeError:
             return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
-
