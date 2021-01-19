@@ -157,6 +157,14 @@ class UserProductLikeView(View):
             UserProductLike.objects.create(user=user, product=product, is_like=True)
 
             return JsonResponse({'LIKED': f"LIKED {product.name}"}, status=200)
+        except json.decoder.JSONDecodeError:
+            return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"PRODUCT_DOSENT_EXIST"} ,status=400)
+        except KeyError:
+            return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+        except TypeError:
+            return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
+        except ValueError:
+            return JsonResponse({'MESSAGE': 'VALUE_ERROR'}, status=400)
             

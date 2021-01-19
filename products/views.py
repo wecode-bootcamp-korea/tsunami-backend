@@ -1,5 +1,5 @@
-from django.views import View
 from django.http  import JsonResponse
+from django.views import View
 
 from .models      import Product, Category, Subcategory, ProductKeyword
 from .utils       import validate_value, query_debugger
@@ -49,7 +49,7 @@ class ProductDetailView(View):
     @query_debugger
     def get(self, request, product_id):
         try:
-            product     = Product.objects.prefetch_related('productbodycolor_set','productinkcolor_set',\
+            product     = Product.objects.prefetch_related('productbodycolor_set','productbodycolor_set__color','productinkcolor_set',\
                           'productthickness_set','product_keyword','productoption_set').get(id=product_id)
             body_colors = product.productbodycolor_set.all()
             ink_colors  = product.productinkcolor_set.all()
