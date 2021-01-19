@@ -1,12 +1,13 @@
 import json
 import bcrypt
-from datetime import datetime
+from datetime        import datetime
 
-from django.http   import JsonResponse
-from django.views  import View
+from django.http     import JsonResponse
+from django.views    import View
 
-from users.models  import User
-from users         import utils
+from users.models    import User, UserProductLike
+from users           import utils
+from products.models import Product
 
 class SignUpView(View):
 
@@ -137,3 +138,25 @@ class SignInView(View):
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
         except TypeError:
             return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
+
+class UserProductLikeView(View):
+    @utils.login_required
+    def post(self, request):
+        try:
+            data    = json.loads(request.body)
+            user    = getattr(request,'user',None)
+            product = Product.objects.get(id=data['product'])
+            likes   = UserProductLike.objects.filter(user=user, product=product)
+            
+            if likes.exists():
+                like         = likes[0]
+                like.is_like = not like.is_like
+                like.save()
+                
+                return JsonResponse({'LIKE': f"{like.is_like}"}, status=200)
+            UserProductLike.objects.create(user=user, product=product, is_like=True)
+
+            return JsonResponse({'LIKED': f"LIKED {product.name}"}, status=200)
+        except KeyError:
+            return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+            

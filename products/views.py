@@ -2,7 +2,8 @@ from django.views import View
 from django.http  import JsonResponse
 
 from .models      import Product, Category, Subcategory, ProductKeyword
-from .utils       import validate_value
+from .utils       import validate_value, query_debugger
+from users.utils  import check_login
 
 class ProductListView(View):
 
@@ -44,13 +45,18 @@ class ProductListView(View):
             return JsonResponse({'MESSAGE':"PRODUCT_DOSENT_EXIST"} ,status=400)
 
 class ProductDetailView(View):
-
+    @check_login
+    @query_debugger
     def get(self, request, product_id):
         try:
-            product     = Product.objects.get(id=product_id)
+            product     = Product.objects.prefetch_related('productbodycolor_set','productinkcolor_set',\
+                          'productthickness_set','product_keyword','productoption_set').get(id=product_id)
             body_colors = product.productbodycolor_set.all()
             ink_colors  = product.productinkcolor_set.all()
             nibs        = product.productthickness_set.all()
+            user        = getattr(request,'user',None)
+            likes       = product.userproductlike_set.filter(user=user)
+
 
             req_dict = {
                 'id'            : product.id,
@@ -60,14 +66,18 @@ class ProductDetailView(View):
                 'maker'         : product.maker.name,
                 'feature'       : product.feature,
                 'origin'        : product.shipping_info.origin,
-                'body_colors'   : [ { body_color.color.name : body_color.color.image_url } for body_color in body_colors ]\
+                'body_colors'   : [ { body_color.color.name : body_color.color.image_url} for body_color in body_colors ]\
                                     if body_colors.exists() else None,
+                                    
                 'ink_colors'    : [ { ink_color.color.name : ink_color.color.image_url } for ink_color in ink_colors ]\
                                     if ink_colors.exists() else None,
+
                 'thicknesses'   : [ { str(nib.thickness.thickness) : nib.thickness.image_url }  for nib in nibs ]\
                                     if nibs.exists() else  None,
+
                 'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
                 'options'       : [ option.name for option in  product.productoption_set.all() ],
+                'is_like'       : likes[0].is_like if likes.exists() else None,
             }
             return JsonResponse({'product':req_dict}, status=200)
         except KeyError:
