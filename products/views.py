@@ -49,13 +49,14 @@ class ProductDetailView(View):
     @query_debugger
     def get(self, request, product_id):
         try:
-            product     = Product.objects.prefetch_related('productbodycolor_set','productbodycolor_set__color','productinkcolor_set',\
-                          'productthickness_set','product_keyword','productoption_set').get(id=product_id)
+            product     = Product.objects.prefetch_related('productbodycolor_set__color',\
+                          'productthickness_set__thickness','productinkcolor_set__color','product_keyword','productoption_set').get(id=product_id)
             body_colors = product.productbodycolor_set.all()
             ink_colors  = product.productinkcolor_set.all()
             nibs        = product.productthickness_set.all()
             user        = getattr(request,'user',None)
             likes       = product.userproductlike_set.filter(user=user)
+            # colors      = Colors.objects.prefetch_related('').all()
 
 
             req_dict = {
