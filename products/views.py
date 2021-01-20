@@ -14,7 +14,7 @@ class ProductListView(View):
             offset        = validate_value(int(request.GET.get('offset',0))) 
 
             if not any(query in query_strings for query in ['subcategory','category']):
-                products = Product.objects.selected_related('maker').all()
+                products = Product.objects.select_related('maker').all()
 
             if 'category' in query_strings:
                 category      = Category.objects.\
