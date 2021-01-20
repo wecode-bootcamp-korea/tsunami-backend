@@ -5,6 +5,8 @@ from users.views import (
     SignInView,
     CheckUsernameDuplicationView, 
     CheckEmailDuplicationView,
+    FindUsernameView,
+    MakeTemporaryPasswordView,
     UserProductLikeView,
 )
 
@@ -13,5 +15,7 @@ urlpatterns = [
     path('/signin', SignInView.as_view()),
     path('/duplication/username/<str:username>', CheckUsernameDuplicationView.as_view()),
     path('/duplication/email/<str:email>', CheckEmailDuplicationView.as_view()),
+    path('/username', FindUsernameView.as_view()),
+    path('/password', MakeTemporaryPasswordView.as_view()),
     path('/like', UserProductLikeView.as_view())
 ]

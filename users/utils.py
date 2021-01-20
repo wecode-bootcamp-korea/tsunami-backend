@@ -2,6 +2,7 @@ import re
 import jwt
 
 from django.http  import JsonResponse
+from django.core  import mail
 
 from users.models import User
 import my_settings
@@ -94,6 +95,22 @@ def login_required(function):
 
     return wrapper
 
+def send_temp_password_mail(name, username, email, password):
+    with open("users/mail_form.txt", 'r') as file:
+        mail_subject = file.readline().strip()
+        mail_form    = file.read()
+        mail.send_mail(
+            mail_subject.format(name=name),
+            mail_form.format(
+                name     = name, 
+                username = username, 
+                password = password
+            ),
+            my_settings.EMAIL_HOST_USER,
+            [ email ],
+            fail_silently=False
+        )
+
 def check_login(function):
     
     def wrapper(view_self, request, *args, **kwargs):
@@ -117,4 +134,4 @@ def check_login(function):
         except jwt.exceptions.DecodeError:
             return JsonResponse({'MESSAGE': 'JWT_DECODE_ERROR'}, status=400)
 
-    return wrapper
+    return wrapper 
