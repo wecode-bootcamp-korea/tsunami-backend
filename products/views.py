@@ -6,7 +6,7 @@ from .utils       import validate_value, query_debugger
 from users.utils  import check_login
 
 class ProductListView(View):
-
+    @query_debugger
     def get(self, request):    
         try:
             query_strings = request.GET
@@ -14,17 +14,20 @@ class ProductListView(View):
             offset        = validate_value(int(request.GET.get('offset',0))) 
 
             if not any(query in query_strings for query in ['subcategory','category']):
-                products = Product.objects.all()[offset:limit]
+                products = Product.objects.selected_related('maker').all()
 
             if 'category' in query_strings:
-                category      = Category.objects.get(id=query_strings['category'])
+                category      = Category.objects.\
+                                prefetch_related('subcategory_set__product_set__maker').\
+                                get(id=query_strings['category'])
                 subcategories = category.subcategory_set.all()
                 products      = [ product for subcategory in subcategories \
-                    for product in subcategory.product_set.all() ][offset:limit]
+                    for product in subcategory.product_set.all() ]
 
             if 'subcategory' in query_strings:
-                subcategory = Subcategory.objects.get(id=query_strings['subcategory'])
-                products    = subcategory.product_set.all()[offset:limit]
+                subcategory = Subcategory.objects.prefetch_related('product_set__maker').\
+                              get(id=query_strings['subcategory'])
+                products    = subcategory.product_set.all()
 
             req_list = [ {
                 'id'        : product.id,
@@ -32,7 +35,7 @@ class ProductListView(View):
                 'name'      : product.name,
                 'price'     : int(product.price),
                 'maker'     : product.maker.name
-             } for product in products ]
+             } for product in products[offset:limit] ]
 
             return JsonResponse({'product':req_list}, status=200)
         except ValueError:
