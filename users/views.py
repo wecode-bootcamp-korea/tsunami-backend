@@ -146,10 +146,9 @@ class UserProductLikeView(View):
             data    = json.loads(request.body)
             user    = getattr(request,'user',None)
             product = Product.objects.get(id=data['product'])
-            likes   = UserProductLike.objects.filter(user=user, product=product)
+            like   = UserProductLike.objects.filter(user=user, product=product).first()
 
-            if likes.exists():
-                like         = likes.get()
+            if like:
                 like.is_like = not like.is_like
                 like.save()
                 
