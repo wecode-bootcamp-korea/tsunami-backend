@@ -79,7 +79,7 @@ class ProductDetailView(View):
 
                 'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
                 'options'       : [ option.name for option in  product.productoption_set.all() ],
-                'is_like'       : like.is_like if like else None
+                'is_like'       : like.is_like if like else False
             }
             return JsonResponse({'product':req_dict}, status=200)
         except KeyError:

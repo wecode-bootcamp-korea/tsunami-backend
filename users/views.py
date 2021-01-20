@@ -231,15 +231,15 @@ class UserProductLikeView(View):
             data    = json.loads(request.body)
             user    = getattr(request,'user',None)
             product = Product.objects.get(id=data['product'])
-            like   = UserProductLike.objects.filter(user=user, product=product).first()
+            like    = UserProductLike.objects.filter(user=user, product=product).first()
 
             if like:
                 like.is_like = not like.is_like
                 like.save()
                 
                 return JsonResponse({'LIKE': like.is_like}, status=200)
-            UserProductLike.objects.create(user=user, product=product, is_like=True)
 
+            UserProductLike.objects.create(user=user, product=product, is_like=True)
             return JsonResponse({'LIKE': True}, status=200)
         except json.decoder.JSONDecodeError:
             return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
