@@ -153,10 +153,10 @@ class UserProductLikeView(View):
                 like.is_like = not like.is_like
                 like.save()
                 
-                return JsonResponse({'LIKE': f"{like.is_like}"}, status=200)
+                return JsonResponse({'LIKE': like.is_like}, status=200)
             UserProductLike.objects.create(user=user, product=product, is_like=True)
 
-            return JsonResponse({'LIKED': f"LIKED {product.name}"}, status=200)
+            return JsonResponse({'LIKE': True}, status=200)
         except json.decoder.JSONDecodeError:
             return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
         except Product.DoesNotExist:
