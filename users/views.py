@@ -1,5 +1,6 @@
 import json
 import bcrypt
+from secrets import token_urlsafe
 from datetime import datetime
 
 from django.http   import JsonResponse
@@ -13,6 +14,7 @@ class SignUpView(View):
     def post(self, request):
         try:
             data            = json.loads(request.body)
+            print(data)
             name            = data["name"]
             username        = data["username"]
             password        = data["password"]
@@ -48,6 +50,9 @@ class SignUpView(View):
 
                 birthday = datetime.strptime(birthday, '%Y%m%d').date()
             
+            if not birthday:
+                birthday = None
+
             # password hashing
             password = bcrypt.hashpw(
                 password.encode('utf-8'), 
@@ -131,6 +136,80 @@ class SignInView(View):
                 }, 
                 status=200
             )
+        except json.decoder.JSONDecodeError:
+            return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
+        except KeyError:
+            return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+        except TypeError:
+            return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
+
+class FindUsernameView(View):
+
+    def post(self, request):
+        try:
+            data  = json.loads(request.body)
+            name  = data['name']
+            email = data['email']
+            
+            if not utils.validate_email(email):
+                return JsonResponse({'MESSAGE': 'INVALID_EMAIL'}, status=400)
+            
+            forgotten_users = User.objects.filter(name=name, email=email)
+            
+            if not forgotten_users.exists():
+                return JsonResponse({'MESSAGE': 'WRONG_USER'}, status=400)
+
+            forgotten_user = forgotten_users[0]
+            return JsonResponse({
+                "USERNAME"  : forgotten_user.username[:-3]+ "*" * 3,
+                "CREATED_AT": forgotten_user.created_at
+            }, status=200)
+        except json.decoder.JSONDecodeError:
+            return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
+        except KeyError:
+            return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+        except TypeError:
+            return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
+ 
+class MakeTemporaryPasswordView(View):
+
+    def post(self, request):
+        try:
+            data     = json.loads(request.body)
+            username = data['username']
+            name     = data['name']
+            email    = data['email']
+
+            if not utils.validate_username(username):
+                return JsonResponse({'MESSAGE': 'INVALID_USERNAME'}, status=400)
+
+            if not utils.validate_email(email):
+                return JsonResponse({'MESSAGE': 'INVALID_EMAIL'}, status=400)
+
+            if User.objects.filter(
+                    username = username, 
+                    name     = name, 
+                    email    = email
+                ).exists():
+                
+                forgotten_user  = User.objects.get(username=username)
+                new_password = token_urlsafe()[:16]
+
+                forgotten_user.password = bcrypt.hashpw(
+                    new_password.encode('utf-8'), 
+                    bcrypt.gensalt()
+                ).decode("utf-8")
+
+                forgotten_user.save()
+                utils.send_temp_password_mail(
+                    name     = name,
+                    username = username,
+                    email    = email,
+                    password = new_password,
+                )
+
+                return JsonResponse({'MESSEAGE': "MAIL_SENT"}, status=200)
+            return JsonResponse({'MESSAGE': 'WRONG_USER'}, status=400)
         except json.decoder.JSONDecodeError:
             return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
         except KeyError:
