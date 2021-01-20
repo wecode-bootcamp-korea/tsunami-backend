@@ -1,5 +1,6 @@
 import json
 import bcrypt
+from secrets import token_urlsafe
 from datetime import datetime
 
 from django.http   import JsonResponse
@@ -13,6 +14,7 @@ class SignUpView(View):
     def post(self, request):
         try:
             data            = json.loads(request.body)
+            print(data)
             name            = data["name"]
             username        = data["username"]
             password        = data["password"]
@@ -152,12 +154,12 @@ class FindUsernameView(View):
             if not utils.validate_email(email):
                 return JsonResponse({'MESSAGE': 'INVALID_EMAIL'}, status=400)
             
-            forgotten_user = User.objects.filter(name=name, email=email)
+            forgotten_users = User.objects.filter(name=name, email=email)
             
-            if not forgotten_user.exists():
+            if not forgotten_users.exists():
                 return JsonResponse({'MESSAGE': 'WRONG_USER'}, status=400)
 
-            forgotten_user = forgotten_user[0]
+            forgotten_user = forgotten_users[0]
             return JsonResponse({
                 "USERNAME"  : forgotten_user.username[:-3]+ "*" * 3,
                 "CREATED_AT": forgotten_user.created_at
@@ -184,23 +186,30 @@ class MakeTemporaryPasswordView(View):
             if not utils.validate_email(email):
                 return JsonResponse({'MESSAGE': 'INVALID_EMAIL'}, status=400)
 
-            forgotten_user = User.objects.filter(
-                username = username, 
-                name     = name, 
-                email    = email
-            )
-            
-            if not forgotten_user.exists():
-                return JsonResponse({'MESSAGE': 'WRONG_USER'}, status=400)
+            if User.objects.filter(
+                    username = username, 
+                    name     = name, 
+                    email    = email
+                ).exists():
+                
+                forgotten_user  = User.objects.get(username=username)
+                new_password = token_urlsafe()[:16]
 
-            forgotten_user          = forgotten_user[0]
-            random_password         = token_urlsafe()[:16]
-            forgotten_user.password = bcrypt.hashpw(
-                random_password.encode('utf-8'), 
-                bcrypt.gensalt()
-            ).decode("utf-8")
-            forgotten_user.save()
-            return JsonResponse({'PASSWORD': random_password}, status=201)
+                forgotten_user.password = bcrypt.hashpw(
+                    new_password.encode('utf-8'), 
+                    bcrypt.gensalt()
+                ).decode("utf-8")
+
+                forgotten_user.save()
+                utils.send_temp_password_mail(
+                    name     = name,
+                    username = username,
+                    email    = email,
+                    password = new_password,
+                )
+
+                return JsonResponse({'MESSEAGE': "MAIL_SENT"}, status=200)
+            return JsonResponse({'MESSAGE': 'WRONG_USER'}, status=400)
         except json.decoder.JSONDecodeError:
             return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
         except KeyError:
