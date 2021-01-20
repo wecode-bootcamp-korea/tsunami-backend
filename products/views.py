@@ -58,9 +58,7 @@ class ProductDetailView(View):
             ink_colors  = product.productinkcolor_set.all()
             nibs        = product.productthickness_set.all()
             user        = getattr(request,'user',None)
-            likes       = product.userproductlike_set.filter(user=user)
-            # colors      = Colors.objects.prefetch_related('').all()
-
+            like       = product.userproductlike_set.filter(user=user).first()
 
             req_dict = {
                 'id'            : product.id,
@@ -81,7 +79,7 @@ class ProductDetailView(View):
 
                 'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
                 'options'       : [ option.name for option in  product.productoption_set.all() ],
-                'is_like'       : likes[0].is_like if likes.exists() else None,
+                'is_like'       : like.is_like if like else None
             }
             return JsonResponse({'product':req_dict}, status=200)
         except KeyError:
