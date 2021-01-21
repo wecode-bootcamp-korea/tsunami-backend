@@ -161,9 +161,9 @@ class UserProductLikeView(View):
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"PRODUCT_DOSENT_EXIST"} ,status=400)
         except KeyError:
-            return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+            return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
         except TypeError:
-            return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
+            return JsonResponse({'MESSAGE':'TYPE_ERROR'}, status=400)
         except ValueError:
-            return JsonResponse({'MESSAGE': 'VALUE_ERROR'}, status=400)
+            return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
             
