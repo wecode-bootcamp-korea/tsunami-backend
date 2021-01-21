@@ -105,3 +105,4 @@ class OrderView(View):
             return JsonResponse({'MESSAGE':'ORDER_EXECUTED'},status=200)
         except ValueError:
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+
