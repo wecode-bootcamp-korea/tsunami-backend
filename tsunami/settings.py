@@ -155,3 +155,34 @@ EMAIL_HOST_USER     = my_settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = my_settings.EMAIL_HOST_PASSWORD
 EMAIL_USE_TLS       = my_settings.EMAIL_USE_TLS
 EMAIL_USE_SSL       = my_settings.EMAIL_USE_SSL
+
+LOGGING = {
+    'disable_existing_loggers': False,
+    'version': 1,
+    'formatters': {
+         'verbose': {
+            'format': '{asctime} {levelname} {message}',
+            'style': '{'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class'     : 'logging.StreamHandler',
+            'formatter' : 'verbose',
+            'level'     : 'DEBUG',
+        },
+        'file': {
+            'level'     : 'DEBUG',
+            'class'     : 'logging.FileHandler',
+            'formatter' : 'verbose',
+            'filename'  : 'debug.log',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers' : ['console','file'],
+            'level'    : 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

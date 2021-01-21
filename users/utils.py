@@ -109,4 +109,29 @@ def send_temp_password_mail(name, username, email, password):
             my_settings.EMAIL_HOST_USER,
             [ email ],
             fail_silently=False
-        ) 
+        )
+
+def check_login(function):
+    
+    def wrapper(view_self, request, *args, **kwargs):
+        try:
+            access_token = request.headers.get("Authorization")
+
+            if not access_token:
+                return function(view_self, request, *args, **kwargs)
+            
+            header = jwt.decode(
+                access_token, 
+                my_settings.SECRET_KEY, 
+                algorithms = my_settings.ALGORITHM
+            )
+
+            if not User.objects.filter(id = header['user_id']).exists():
+                return JsonResponse({'MESSAGE': 'INVALID_USER'}, status=400)
+            
+            setattr(request, "user", User.objects.get(id = header['user_id']))
+            return function(view_self, request, *args, **kwargs)
+        except jwt.exceptions.DecodeError:
+            return JsonResponse({'MESSAGE': 'JWT_DECODE_ERROR'}, status=400)
+
+    return wrapper 
