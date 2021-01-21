@@ -7,7 +7,7 @@ from users.views import (
     CheckEmailDuplicationView,
     FindUsernameView,
     MakeTemporaryPasswordView,
-    UserProductLikeView,
+    UserProductLikeView
 )
 
 urlpatterns = [
