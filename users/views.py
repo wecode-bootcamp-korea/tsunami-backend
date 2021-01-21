@@ -1,11 +1,7 @@
 import json
 import bcrypt
-<<<<<<< HEAD
+from secrets         import token_urlsafe
 from datetime        import datetime
-=======
-from secrets import token_urlsafe
-from datetime import datetime
->>>>>>> main
 
 from django.http     import JsonResponse
 from django.views    import View
