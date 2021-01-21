@@ -151,8 +151,16 @@ CORS_ALLOW_HEADERS = (
     'origin',
     'user-agent',
     'x-csrftoken',
-    'x-requested-with',
+    'x-requested-with'
 )
+
+EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST          = my_settings.EMAIL_HOST
+EMAIL_PORT          = my_settings.EMAIL_PORT
+EMAIL_HOST_USER     = my_settings.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = my_settings.EMAIL_HOST_PASSWORD
+EMAIL_USE_TLS       = my_settings.EMAIL_USE_TLS
+EMAIL_USE_SSL       = my_settings.EMAIL_USE_SSL
 
 LOGGING = {
     'disable_existing_loggers': False,

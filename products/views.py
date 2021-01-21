@@ -14,7 +14,7 @@ class ProductListView(View):
             offset        = validate_value(int(request.GET.get('offset',0))) 
 
             if not any(query in query_strings for query in ['subcategory','category']):
-                products = Product.objects.selected_related('maker').all()
+                products = Product.objects.select_related('maker').all()
 
             if 'category' in query_strings:
                 category      = Category.objects.\
@@ -79,7 +79,7 @@ class ProductDetailView(View):
 
                 'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
                 'options'       : [ option.name for option in  product.productoption_set.all() ],
-                'is_like'       : like.is_like if like else None
+                'is_like'       : like.is_like if like else False
             }
             return JsonResponse({'product':req_dict}, status=200)
         except KeyError:
