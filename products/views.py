@@ -88,3 +88,18 @@ class ProductDetailView(View):
             return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
+
+class MainProductView(View):
+    def get(self, request):
+        try:
+            products = [Product.objects.get(id=70), Product.objects.get(id=71), Product.objects.get(id=86)]
+
+            req_dict = [ {
+                'id'            : product.id,
+                'imageUrl'      : product.main_image_url,
+                'name'          : product.name,
+                'price'         : int(product.price),
+            } for product in products ]
+            return JsonResponse({'product':req_dict},status=200)
+        except Product.DoesNotExist:
+            return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
