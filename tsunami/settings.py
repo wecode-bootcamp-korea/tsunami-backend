@@ -120,6 +120,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [                                                                                                                                                                      
+    f"{BASE_DIR}"
+]         
+
+
+
 #REMOVE_APPEND_SLASH_WARNING
 APPEND_SLASH = False
 
