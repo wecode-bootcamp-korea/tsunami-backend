@@ -10,6 +10,7 @@ from users.utils     import login_required
 from orders.utils    import refresh_order, query_debugger
 
 class CartView(View):
+    
     @query_debugger
     @login_required
     def post(self, request):
@@ -80,7 +81,11 @@ class CartView(View):
             return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
         except ValueError:
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'}, status=400)
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> b0375e3bd161c5a01a3937db99a3cb6483ccb096
     @login_required
     @query_debugger
     def get(self, request):
@@ -130,6 +135,10 @@ class CartView(View):
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=400)
 
 class OrderView(View):
+<<<<<<< HEAD
+=======
+    
+>>>>>>> b0375e3bd161c5a01a3937db99a3cb6483ccb096
     @login_required
     def post(self, request):
         try:
@@ -153,5 +162,8 @@ class OrderView(View):
             return JsonResponse({'MESSAGE':'ORDER_EXECUTED'},status=200)
         except ValueError:
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> b0375e3bd161c5a01a3937db99a3cb6483ccb096
