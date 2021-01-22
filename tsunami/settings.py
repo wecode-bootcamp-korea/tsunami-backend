@@ -27,7 +27,7 @@ SECRET_KEY = my_settings.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*','34.239.107.139','34.239.107.139:8000']
 
 
 # Application definition
@@ -119,6 +119,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [                                                                                                                                                                      
+    f"{BASE_DIR}"
+]         
+
+
 
 #REMOVE_APPEND_SLASH_WARNING
 APPEND_SLASH = False

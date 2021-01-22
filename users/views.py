@@ -1,7 +1,7 @@
 import json
 import bcrypt
-from secrets import token_urlsafe
-from datetime import datetime
+from secrets         import token_urlsafe
+from datetime        import datetime
 
 from django.http     import JsonResponse
 from django.views    import View
@@ -15,15 +15,14 @@ class SignUpView(View):
     def post(self, request):
         try:
             data            = json.loads(request.body)
-            print(data)
             name            = data["name"]
             username        = data["username"]
             password        = data["password"]
             email           = data["email"]
-            phone_number    = data["phone_number"]
+            phone_number    = data["phoneNumber"]
             birthday        = data.get("birthday")
-            is_sms_agreed   = data["is_sms_agreed"]
-            is_email_agreed = data["is_email_agreed"]
+            is_sms_agreed   = data["isSmsAgreed"]
+            is_email_agreed = data["isEmailAgreed"]
 
             if not utils.validate_username(username):
                 return JsonResponse({'MESSAGE': 'INVALID_USERNAME'}, status=400)
@@ -217,6 +216,8 @@ class MakeTemporaryPasswordView(View):
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
         except TypeError:
             return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
+        except ValueError:
+            return JsonResponse({'MESSAGE': 'VALUE_ERROR'}, status=400)
 
 class UserProductLikeView(View):
     @utils.login_required
@@ -225,15 +226,15 @@ class UserProductLikeView(View):
             data    = json.loads(request.body)
             user    = getattr(request,'user',None)
             product = Product.objects.get(id=data['product'])
-            like   = UserProductLike.objects.filter(user=user, product=product).first()
+            like    = UserProductLike.objects.filter(user=user, product=product).first()
 
             if like:
                 like.is_like = not like.is_like
                 like.save()
                 
                 return JsonResponse({'LIKE': like.is_like}, status=200)
+              
             UserProductLike.objects.create(user=user, product=product, is_like=True)
-
             return JsonResponse({'LIKE': True}, status=200)
         except json.decoder.JSONDecodeError:
             return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)

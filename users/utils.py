@@ -110,7 +110,7 @@ def send_temp_password_mail(name, username, email, password):
             [ email ],
             fail_silently=False
         ) 
-        
+
 def check_login(function):
     
     def wrapper(view_self, request, *args, **kwargs):
@@ -133,5 +133,4 @@ def check_login(function):
             return function(view_self, request, *args, **kwargs)
         except jwt.exceptions.DecodeError:
             return JsonResponse({'MESSAGE': 'JWT_DECODE_ERROR'}, status=400)
-
     return wrapper
