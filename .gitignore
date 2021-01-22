@@ -16,6 +16,7 @@ my_settings.py
 user_csv.py
 .vscode
 uploaders.py
+*.sql
 image_crawler.py
 images/
 

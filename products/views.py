@@ -58,7 +58,7 @@ class ProductDetailView(View):
             ink_colors  = product.productinkcolor_set.all()
             nibs        = product.productthickness_set.all()
             user        = getattr(request,'user',None)
-            like       = product.userproductlike_set.filter(user=user).first()
+            like        = product.userproductlike_set.filter(user=user).first()
 
             req_dict = {
                 'id'            : product.id,
@@ -68,18 +68,18 @@ class ProductDetailView(View):
                 'maker'         : product.maker.name,
                 'feature'       : product.feature,
                 'origin'        : product.shipping_info.origin,
-                'body_colors'   : [ { body_color.color.name : body_color.color.image_url} for body_color in body_colors ]\
+                'body_colors'   : [ { 'name' : body_color.color.name, 'url': body_color.color.image_url } for body_color in body_colors ]\
                                     if body_colors.exists() else None,
                                     
-                'ink_colors'    : [ { ink_color.color.name : ink_color.color.image_url } for ink_color in ink_colors ]\
+                'ink_colors'    : [ { 'name' : ink_color.color.name, 'url' : ink_color.color.image_url } for ink_color in ink_colors ]\
                                     if ink_colors.exists() else None,
 
-                'thicknesses'   : [ { str(nib.thickness.thickness) : nib.thickness.image_url }  for nib in nibs ]\
+                'thicknesses'   : [ { 'name':str(nib.thickness.thickness), 'url' : nib.thickness.image_url }  for nib in nibs ]\
                                     if nibs.exists() else  None,
 
                 'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
                 'options'       : [ option.name for option in  product.productoption_set.all() ],
-                'is_like'       : like.is_like if like else False
+                'is_like'       : like.is_like if like else None
             }
             return JsonResponse({'product':req_dict}, status=200)
         except KeyError:
@@ -87,4 +87,20 @@ class ProductDetailView(View):
         except ValueError:
             return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
         except Product.DoesNotExist:
-          return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
+            return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
+
+class MainProductView(View):
+    def get(self, request):
+        try:
+            products = [Product.objects.get(id=70), Product.objects.get(id=71), Product.objects.get(id=86)]
+
+            req_dict = [ {
+                'id'            : product.id,
+                'imageUrl'      : product.main_image_url,
+                'name'          : product.name,
+                'price'         : int(product.price),
+            } for product in products ]
+            return JsonResponse({'product':req_dict},status=200)
+        except Product.DoesNotExist:
+            return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
+
