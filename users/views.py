@@ -15,15 +15,14 @@ class SignUpView(View):
     def post(self, request):
         try:
             data            = json.loads(request.body)
-            print(data)
             name            = data["name"]
             username        = data["username"]
             password        = data["password"]
             email           = data["email"]
-            phone_number    = data["phone_number"]
+            phone_number    = data["phoneNumber"]
             birthday        = data.get("birthday")
-            is_sms_agreed   = data["is_sms_agreed"]
-            is_email_agreed = data["is_email_agreed"]
+            is_sms_agreed   = data["isSmsAgreed"]
+            is_email_agreed = data["isEmailAgreed"]
 
             if not utils.validate_username(username):
                 return JsonResponse({'MESSAGE': 'INVALID_USERNAME'}, status=400)
