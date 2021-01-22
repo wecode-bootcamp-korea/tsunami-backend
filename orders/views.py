@@ -89,7 +89,7 @@ class CartView(View):
             orders = Order.objects.filter(user=user, status=1)
 
             if not orders.exists():
-                return JsonResponse({"carts_list": {[]}}, status=200)
+                return JsonResponse({"carts_list": {}}, status=200)
 
             order = orders.get()
             carts = Cart.objects.filter(order=order).select_related("product_option__product__shipping_info")
@@ -120,9 +120,11 @@ class CartView(View):
                 return JsonResponse({"MESSAGE": "INVALID_ID"}, statu=400)
             
             if not Cart.objects.filter(id=cart_id).exists():
-                return JsonResponse({"MESSAGE": "INVALID_ID"}, status=400)
-
-            Cart.objects.get(id=cart_id).delete()
+                return JsonResponse({"MESSAGE": "INVALID_ID"}, status=400)  
+            cart = Cart.objects.get(id=cart_id)
+            order = cart.order
+            cart.delete()
+            refresh_order(order)
             return JsonResponse({"MESSAGE": "DELETED"}, status=200)
         except KeyError:
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=400)

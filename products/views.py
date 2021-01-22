@@ -10,7 +10,7 @@ class ProductListView(View):
     def get(self, request):    
         try:
             query_strings = request.GET
-            limit         = validate_value(int(request.GET.get('limit',40)))
+            limit         = validate_value(int(request.GET.get('limit',500)))
             offset        = validate_value(int(request.GET.get('offset',0))) 
 
             if not any(query in query_strings for query in ['subcategory','category']):
@@ -37,7 +37,7 @@ class ProductListView(View):
                 'maker'     : product.maker.name
              } for product in products[offset:limit] ]
 
-            return JsonResponse({'product':req_list}, status=200)
+            return JsonResponse({'count':len(list(products)),'product':req_list}, status=200) 
         except ValueError:
             return JsonResponse({'MESSAGE':'VALUE_ERROR'}, status=400)
         except Category.DoesNotExist:
@@ -68,13 +68,13 @@ class ProductDetailView(View):
                 'maker'         : product.maker.name,
                 'feature'       : product.feature,
                 'origin'        : product.shipping_info.origin,
-                'body_colors'   : [ { body_color.color.name : body_color.color.image_url} for body_color in body_colors ]\
+                'body_colors'   : [ { 'name' : body_color.color.name, 'url':body_color.color.image_url} for body_color in body_colors ]\
                                     if body_colors.exists() else None,
                                     
-                'ink_colors'    : [ { ink_color.color.name : ink_color.color.image_url } for ink_color in ink_colors ]\
+                'ink_colors'    : [ { 'name' :ink_color.color.name, 'url': ink_color.color.image_url } for ink_color in ink_colors ]\
                                     if ink_colors.exists() else None,
 
-                'thicknesses'   : [ { str(nib.thickness.thickness) : nib.thickness.image_url }  for nib in nibs ]\
+                'thicknesses'   : [ { 'name': str(nib.thickness.thickness),'url' : nib.thickness.image_url }  for nib in nibs ]\
                                     if nibs.exists() else  None,
 
                 'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
