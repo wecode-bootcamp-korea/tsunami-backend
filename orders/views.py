@@ -2,7 +2,7 @@ import json
 
 from django.http     import JsonResponse
 from django.views    import View
-
+import django.core.exceptions.ValidationError
 from users.models    import Destination
 from products.models import Product, ProductOption
 from .models         import Order, Cart, Status
@@ -81,11 +81,7 @@ class CartView(View):
             return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
         except ValueError:
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'}, status=400)
-<<<<<<< HEAD
-
-=======
-          
->>>>>>> b0375e3bd161c5a01a3937db99a3cb6483ccb096
+    
     @login_required
     @query_debugger
     def get(self, request):
@@ -135,10 +131,7 @@ class CartView(View):
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=400)
 
 class OrderView(View):
-<<<<<<< HEAD
-=======
     
->>>>>>> b0375e3bd161c5a01a3937db99a3cb6483ccb096
     @login_required
     def post(self, request):
         try:
@@ -160,10 +153,15 @@ class OrderView(View):
             order.save()
 
             return JsonResponse({'MESSAGE':'ORDER_EXECUTED'},status=200)
-        except ValueError:
+        except json.decoder.JSONDecodeError:
+            return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
+        except KeyError:
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
-<<<<<<< HEAD
+        except TypeError:
+            return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
+        except ValueError:
+            return JsonResponse({'MESSAGE': 'VALUE_ERROR'}, status=400)
+        except django.core.exceptions.ValidationError:
+            return JsonResponse({'MESSAGE': 'VALIDATION_ERROR'}, status=400)
 
 
-=======
->>>>>>> b0375e3bd161c5a01a3937db99a3cb6483ccb096
