@@ -1,3 +1,1 @@
-# Tsunami Team Backend Repository
-
-## To be added
+# Tsunami Team Backend 
