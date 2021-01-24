@@ -231,7 +231,6 @@ class UserProductLikeView(View):
             if like:
                 like.is_like = not like.is_like
                 like.save()
-                
                 return JsonResponse({'LIKE': like.is_like}, status=200)
               
             UserProductLike.objects.create(user=user, product=product, is_like=True)

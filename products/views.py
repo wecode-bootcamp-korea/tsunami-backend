@@ -68,7 +68,6 @@ class ProductDetailView(View):
                 'maker'         : product.maker.name,
                 'feature'       : product.feature,
                 'origin'        : product.shipping_info.origin,
-<<<<<<< HEAD
                 'body_colors'   : [ { 'name' : body_color.color.name, 'url': body_color.color.image_url } for body_color in body_colors ]\
                                     if body_colors.exists() else None,
                                     
@@ -76,15 +75,6 @@ class ProductDetailView(View):
                                     if ink_colors.exists() else None,
 
                 'thicknesses'   : [ { 'name':str(nib.thickness.thickness), 'url' : nib.thickness.image_url }  for nib in nibs ]\
-=======
-                'body_colors'   : [ { 'name' : body_color.color.name, 'url':body_color.color.image_url} for body_color in body_colors ]\
-                                    if body_colors.exists() else None,
-                                    
-                'ink_colors'    : [ { 'name' :ink_color.color.name, 'url': ink_color.color.image_url } for ink_color in ink_colors ]\
-                                    if ink_colors.exists() else None,
-
-                'thicknesses'   : [ { 'name': str(nib.thickness.thickness),'url' : nib.thickness.image_url }  for nib in nibs ]\
->>>>>>> 326a433f1ca9180058801801fe3d6e43b8f5564e
                                     if nibs.exists() else  None,
 
                 'keywords'      : [ keyword.keyword for keyword in product.product_keyword.all() ],     
@@ -113,7 +103,3 @@ class MainProductView(View):
             return JsonResponse({'product':req_dict},status=200)
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
-<<<<<<< HEAD
-
-=======
->>>>>>> 326a433f1ca9180058801801fe3d6e43b8f5564e

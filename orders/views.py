@@ -2,7 +2,6 @@ import json
 
 from django.http     import JsonResponse
 from django.views    import View
-import django.core.exceptions.ValidationError
 from users.models    import Destination
 from products.models import Product, ProductOption
 from .models         import Order, Cart, Status
@@ -21,24 +20,23 @@ class CartView(View):
             user           = getattr(request,'user',None)
             before_execute = Status.objects.get(id=1)
             option         = product.productoption_set.get(id=data['option'])
-
-            if getattr(user.order_set.last(),'status',None) != before_execute:
-                Order.objects.create(
-                    user=user,
-                    shipping_memo="",
-                    total_price=0,
-                    status=before_execute
+            order          = user.order_set.filter(status=before_execute).first()
+            if not order:
+                order = Order.objects.create(
+                    user          = user,
+                    shipping_memo = "",
+                    total_price   = 0,
+                    status        = before_execute
                 )
-            order = Order.objects.last()
 
             if Cart.objects.filter(product=product, product_option=option, order=order).exists():
                 return JsonResponse({'MESSAGE':'CART_ALREADY_EXISTS'}, status=400)
 
             Cart.objects.create(
-                product=product,
-                quantity=quantity,
-                order=user.order_set.last(),
-                product_option=option
+                product        = product,
+                quantity       = quantity,
+                order          = user.order_set.last(),
+                product_option = option
             )
             refresh_order(order)
             return JsonResponse({"MESSAGE":'SUCCESS'},status=200)
@@ -137,7 +135,7 @@ class OrderView(View):
         try:
             data                = json.loads(request.body)
             user                = getattr(request,'user',None)
-            order               = Order.objects.last()
+            order               = Order.objects.get(status=1) 
             after_execute       = Status.objects.get(id=2)
             default_destination = user.destination_set.filter(is_default=True)
             order.shipping_memo = data['shipping_memo']
@@ -161,7 +159,7 @@ class OrderView(View):
             return JsonResponse({'MESSAGE': 'TYPE_ERROR'}, status=400)
         except ValueError:
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'}, status=400)
-        except django.core.exceptions.ValidationError:
-            return JsonResponse({'MESSAGE': 'VALIDATION_ERROR'}, status=400)
+        except Order.DoesNotExist:
+            return JsonResponse({'MESSAGE': 'NO_ORDER_TO_EXECUTE'}, status=400)
 
 
