@@ -39,6 +39,7 @@
 + Deploy - **EC2 , RDS**
 
 # API Manual
+[postman api manual](https://documenter.getpostman.com/view/14075359/TVzaAE6b#dcadeca5-5133-4428-bce9-e55433b3f425)
 
 # Reference 
 + 이 프로젝트는 [모나미 몰](https://www.monamimall.com/w/) 사이트를 참조하여 학습목적으로 만들었습니다.
