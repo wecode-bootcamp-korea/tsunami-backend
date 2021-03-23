@@ -26,4 +26,3 @@ class Status(models.Model):
 
     class Meta:
         db_table = 'statuses'
-
