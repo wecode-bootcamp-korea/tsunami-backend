@@ -89,10 +89,11 @@ class ProductDetailView(View):
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE':"INVAILD_PRODUCT"},status=400)
 
-class MainProductView(View):
+class MainpageProductView(View):
+    @query_debugger
     def get(self, request):
         try:
-            products = [Product.objects.get(id=70), Product.objects.get(id=71), Product.objects.get(id=86)]
+            products = [ Product.objects.get(id=70), Product.objects.get(id=71), Product.objects.get(id=86) ]
 
             req_dict = [ {
                 'id'            : product.id,

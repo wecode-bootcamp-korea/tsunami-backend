@@ -50,7 +50,7 @@ class CartView(View):
             return JsonResponse({'MESSAGE': 'VALUE_ERROR'}, status=400)
         except ProductOption.DoesNotExist:
             return JsonResponse({'MESSAGE':"PRODUCT_OPTION_DOSENT_EXIST"} ,status=400)
-
+    @login_required
     @query_debugger
     def patch(self, request):
         try:
@@ -110,6 +110,7 @@ class CartView(View):
             return JsonResponse({"MESSAGE": "VALUE_ERROR"}, status=400)
 
     @login_required
+    @query_debugger
     def delete(self, request):
         try: 
             data = json.loads(request.body)
@@ -131,6 +132,7 @@ class CartView(View):
 class OrderView(View):
     
     @login_required
+    @query_debugger
     def post(self, request):
         try:
             data                = json.loads(request.body)
@@ -150,7 +152,7 @@ class OrderView(View):
             order.status      = after_execute
             order.save()
 
-            return JsonResponse({'MESSAGE':'ORDER_EXECUTED'},status=200)
+            return JsonResponse({'MESSAGE':'ORDER_EXECUTED'}, status=200)
         except json.decoder.JSONDecodeError:
             return JsonResponse({'MESSAGE': 'JSON_DECODE_ERROR'}, status=400)
         except KeyError:
